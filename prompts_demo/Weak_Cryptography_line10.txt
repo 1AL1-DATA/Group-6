@@ -1,0 +1,48 @@
+# Finding: Weak Cryptography at line 10
+# Severity: Medium
+# Evidence: import base64
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: Weak Cryptography
+Severity: Medium
+Evidence: import base64
+Line: 10
+
+Code context:
+```
+1: #!/usr/bin/env python3
+2: # Vulnerable Web Application for Security Analysis (DO NOT USE IN PRODUCTION)
+3: # This code contains multiple security vulnerabilities intentionally.
+4: 
+5: import os
+6: import sqlite3
+7: import hashlib
+8: import subprocess
+9: import pickle
+10: import base64
+11: from flask import Flask, request, render_template_string, session, redirect, url_for, send_file
+12: 
+13: app = Flask(__name__)
+14: app.secret_key = 'hardcoded_secret_key_12345'  # Hardcoded secret key (vulnerability)
+15: 
+16: # Hardcoded admin credentials
+17: ADMIN_USERNAME = "admin"
+18: ADMIN_PASSWORD_HASH = hashlib.md5(b"SuperSecretPass123").hexdigest()  # MD5 & hardcoded
+19: 
+20: # Initialize database (vulnerable to SQL injection)
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]

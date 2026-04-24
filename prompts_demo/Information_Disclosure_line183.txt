@@ -1,0 +1,48 @@
+# Finding: Information Disclosure at line 183
+# Severity: Low
+# Evidence: return f"Internal Server Error\n{traceback.format_exc()}", 500
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: Information Disclosure
+Severity: Low
+Evidence: return f"Internal Server Error\n{traceback.format_exc()}", 500
+Line: 183
+
+Code context:
+```
+174:         return f"Result: {result}"
+175:     except Exception as e:
+176:         return f"Error: {e}"
+177: 
+178: # Information disclosure: debug mode enabled, stack traces on errors
+179: @app.errorhandler(500)
+180: def internal_error(error):
+181:     # Exposes full traceback
+182:     import traceback
+183:     return f"Internal Server Error\n{traceback.format_exc()}", 500
+184: 
+185: # Hardcoded credentials in source (already present at top)
+186: # Also, environment variable fallback is insecure
+187: API_KEY = "sk-1234567890abcdef"  # Hardcoded API key
+188: 
+189: @app.route('/api/data')
+190: def api_data():
+191:     provided_key = request.headers.get('X-API-Key')
+192:     if provided_key == API_KEY:
+193:         return {"data": "sensitive information"}
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]

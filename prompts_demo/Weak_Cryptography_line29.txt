@@ -1,0 +1,48 @@
+# Finding: Weak Cryptography at line 29
+# Severity: Medium
+# Evidence: (hashlib.md5(b"pass123").hexdigest(),))
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: Weak Cryptography
+Severity: Medium
+Evidence: (hashlib.md5(b"pass123").hexdigest(),))
+Line: 29
+
+Code context:
+```
+20: # Initialize database (vulnerable to SQL injection)
+21: def init_db():
+22:     conn = sqlite3.connect('vuln_app.db')
+23:     c = conn.cursor()
+24:     c.execute('''CREATE TABLE IF NOT EXISTS users
+25:                  (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)''')
+26:     c.execute("INSERT OR IGNORE INTO users VALUES (1, 'admin', ?, 'admin')",
+27:               (hashlib.md5(b"admin123").hexdigest(),))
+28:     c.execute("INSERT OR IGNORE INTO users VALUES (2, 'testuser', ?, 'user')",
+29:               (hashlib.md5(b"pass123").hexdigest(),))
+30:     conn.commit()
+31:     conn.close()
+32: 
+33: init_db()
+34: 
+35: # Helper: get DB connection
+36: def get_db():
+37:     return sqlite3.connect('vuln_app.db')
+38: 
+39: # Home page (contains reflected XSS)
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]

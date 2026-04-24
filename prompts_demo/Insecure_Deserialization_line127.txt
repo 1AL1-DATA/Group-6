@@ -1,0 +1,48 @@
+# Finding: Insecure Deserialization at line 127
+# Severity: Critical
+# Evidence: obj = pickle.loads(pickled)  # Remote code execution risk
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: Insecure Deserialization
+Severity: Critical
+Evidence: obj = pickle.loads(pickled)  # Remote code execution risk
+Line: 127
+
+Code context:
+```
+118:         return f"Cannot download: {e}", 404
+119: 
+120: # Insecure deserialization using pickle (from user cookie or parameter)
+121: @app.route('/deserialize')
+122: def deserialize():
+123:     data = request.args.get('data', '')
+124:     if data:
+125:         # Base64 decode and then unpickle (dangerous)
+126:         pickled = base64.b64decode(data)
+127:         obj = pickle.loads(pickled)  # Remote code execution risk
+128:         return f"Deserialized object: {obj}"
+129:     return "Provide ?data=<base64 pickled>"
+130: 
+131: # Weak hash update: allows MD5 for password change
+132: @app.route('/change_password', methods=['POST'])
+133: def change_password():
+134:     if 'user_id' not in session:
+135:         return "Unauthorized", 401
+136:     new_pass = request.form.get('new_password')
+137:     # Using MD5, no salt
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]

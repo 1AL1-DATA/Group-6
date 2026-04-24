@@ -1,0 +1,48 @@
+# Finding: XSS at line 44
+# Severity: Critical
+# Evidence: return render_template_string('''
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: XSS
+Severity: Critical
+Evidence: return render_template_string('''
+Line: 44
+
+Code context:
+```
+35: # Helper: get DB connection
+36: def get_db():
+37:     return sqlite3.connect('vuln_app.db')
+38: 
+39: # Home page (contains reflected XSS)
+40: @app.route('/')
+41: def home():
+42:     name = request.args.get('name', 'Guest')
+43:     # Reflected XSS vulnerability
+44:     return render_template_string('''
+45:         <html>
+46:         <head><title>Vulnerable App</title></head>
+47:         <body>
+48:             <h1>Welcome, %s!</h1>
+49:             <form action="/search" method="GET">
+50:                 <input type="text" name="q" placeholder="Search...">
+51:                 <button type="submit">Search</button>
+52:             </form>
+53:             <hr>
+54:             <a href="/profile">Profile</a> | <a href="/download?file=notes.txt">Download Sample</a> | <a href="/ping?ip=127.0.0.1">Ping Tool</a>
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]

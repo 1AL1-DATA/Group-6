@@ -1,0 +1,132 @@
+# RepoGuard - Hybrid LLM-based Security Review Tool
+
+## System Overview
+
+RepoGuard is a standalone application that automatically analyzes codebases to detect common security issues before they are made public or merged into the main branch. It can be integrated into development workflows through a CLI or CI/CD pipelines.
+
+## System Architecture
+
+### Execution Modes
+
+1. **Local Scan (CLI)**
+   - Trigger: `repoguard scan .`
+   - Provides early feedback before commits
+   - Runs in the developer's working directory
+
+2. **Centralized Scan (CI/CD)**
+   - Triggered on pull requests
+   - Produces structured security reports
+   - Integrates with Git-based workflows
+
+### Analysis Engine (Multi-stage Process)
+
+The core analysis engine follows a hybrid approach:
+
+#### Stage 1: Rule-based Checks (Deterministic)
+- Detects well-known patterns: hardcoded secrets, insecure configurations
+- Uses regex and pattern matching
+- High precision, low recall
+
+#### Stage 2: Heuristic Pattern Analysis
+- Identifies suspicious code structures
+- Analyzes code context and semantics
+- Uses lightweight ML models for code understanding
+
+#### Stage 3: Risk Scoring (Lightweight)
+- Uses BERT-based models (e.g., all-MiniLM-L6-v2)
+- Estimates vulnerability likelihood and confidence
+- Prioritizes findings for escalation
+
+#### Stage 4: Selective LLM Escalation
+- Only high-risk OR low-confidence cases forwarded
+- Reduces unnecessary LLM usage
+- Generates: explanations, fix suggestions, code patches
+
+### Output
+
+Structured report containing:
+- Detected issues
+- Severity levels (Critical, High, Medium, Low)
+- Explanations
+- Recommended fixes
+- Optional code patches
+
+## Technical Design
+
+### Components
+
+1. **Repository Traversal Module**
+   - Reads target project files
+   - Filters: dependencies, binaries, generated files
+   - Supports: .py, .js, .ts, .java, .go, .rs, etc.
+
+2. **Rule Engine**
+   - JSON-defined rules with regex patterns
+   - Configurable severity levels
+   - Extensible rule format
+
+3. **Heuristic Analyzer**
+   - Code structure analysis
+   - Context-aware detection
+
+4. **Risk Scorer**
+   - MiniLM-based embeddings
+   - Scoring threshold: High=0.8, Medium=0.5
+
+5. **LLM Analyzer**
+   - Uses Ollama (local) or cloud API
+   - Selective input filtering
+   - Context window management
+
+6. **Reporter**
+   - JSON/Text output formats
+   - Git-compatible exit codes
+
+### Files Found
+
+1. `rules/default_rules.json`:
+   - R001: eval() - Injection (High)
+   - R002: os.system() - Misconfiguration (Medium)
+   - R003: Hardcoded API keys (Critical)
+
+2. Models:
+   - CodeBERT (microsoft/CodeBERT-base)
+   - MiniLM (sentence-transformers/all-MiniLM-L6-v2)
+
+3. Key Dependencies:
+   - torch, transformers
+   - sentence-transformers
+
+## Evaluation Plan
+
+### Setup
+- Use intentionally vulnerable repositories
+- Predefined security issues with ground truth
+
+### Comparison
+1. Rule-based scanner only
+2. LLM-only approach
+3. Hybrid system (RepoGuard)
+
+### Metrics
+- Precision: correctness of detected issues
+- Recall: coverage of existing issues
+- False positive rate
+- Runtime and computational cost
+- Usefulness of explanations
+
+## Limitations
+
+1. LLM may produce false positives/negatives
+2. Static analysis (no runtime behavior)
+3. Risk scorer quality depends on model
+4. Context window limitations
+5. Privacy concerns with external APIs
+6. Not a replacement for professional security audits
+
+## Figures
+
+Workflow: Developer → CLI/CI → RepoGuard → Report → Developer
+
+Analysis Engine:
+Repository → Traversal → [Rules] → [Heuristics] → [Risk Scorer] → [Prioritization] → [LLM] → Report

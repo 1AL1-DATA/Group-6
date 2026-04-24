@@ -1,0 +1,48 @@
+# Finding: Path Traversal at line 116
+# Severity: High
+# Evidence: return send_file(full_path, as_attachment=True)
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: Path Traversal
+Severity: High
+Evidence: return send_file(full_path, as_attachment=True)
+Line: 116
+
+Code context:
+```
+107: 
+108: # Path Traversal vulnerability
+109: @app.route('/download')
+110: def download():
+111:     file_name = request.args.get('file')
+112:     # No path sanitization, allows reading any file
+113:     base_path = './static/'
+114:     full_path = base_path + file_name
+115:     try:
+116:         return send_file(full_path, as_attachment=True)
+117:     except Exception as e:
+118:         return f"Cannot download: {e}", 404
+119: 
+120: # Insecure deserialization using pickle (from user cookie or parameter)
+121: @app.route('/deserialize')
+122: def deserialize():
+123:     data = request.args.get('data', '')
+124:     if data:
+125:         # Base64 decode and then unpickle (dangerous)
+126:         pickled = base64.b64decode(data)
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]

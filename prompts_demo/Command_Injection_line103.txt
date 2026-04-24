@@ -1,0 +1,48 @@
+# Finding: Command Injection at line 103
+# Severity: High
+# Evidence: result = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, timeout=5)
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: Command Injection
+Severity: High
+Evidence: result = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, timeout=5)
+Line: 103
+
+Code context:
+```
+94:     ''')
+95: 
+96: # Command Injection vulnerability
+97: @app.route('/ping')
+98: def ping():
+99:     ip = request.args.get('ip', '')
+100:     # Directly pass user input to shell command
+101:     cmd = f"ping -c 4 {ip}"
+102:     try:
+103:         result = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, timeout=5)
+104:         return f"<pre>{result.decode()}</pre>"
+105:     except subprocess.CalledProcessError as e:
+106:         return f"Error: {e.output.decode()}"
+107: 
+108: # Path Traversal vulnerability
+109: @app.route('/download')
+110: def download():
+111:     file_name = request.args.get('file')
+112:     # No path sanitization, allows reading any file
+113:     base_path = './static/'
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]

@@ -1,0 +1,48 @@
+# Finding: Weak Cryptography at line 65
+# Severity: Medium
+# Evidence: query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{hashlib.md5(password.en
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: Weak Cryptography
+Severity: Medium
+Evidence: query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{hashlib.md5(password.en
+Line: 65
+
+Code context:
+```
+56:         </html>
+57:     ''' % name)  # Unsafe string formatting -> XSS
+58: 
+59: # SQL Injection vulnerability
+60: @app.route('/login', methods=['POST'])
+61: def login():
+62:     username = request.form.get('username')
+63:     password = request.form.get('password')
+64:     # Construct query with direct concatenation
+65:     query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{hashlib.md5(password.encode()).hexdigest()}'"
+66:     conn = get_db()
+67:     c = conn.cursor()
+68:     try:
+69:         c.execute(query)
+70:         user = c.fetchone()
+71:         if user:
+72:             session['user_id'] = user[0]
+73:             session['role'] = user[3]
+74:             return redirect(url_for('profile'))
+75:         else:
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]

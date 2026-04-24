@@ -1,0 +1,48 @@
+# Finding: SQL Injection at line 159
+# Severity: High
+# Evidence: c.execute(f"SELECT username, role FROM users WHERE id = {user_id}")
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: SQL Injection
+Severity: High
+Evidence: c.execute(f"SELECT username, role FROM users WHERE id = {user_id}")
+Line: 159
+
+Code context:
+```
+150: def profile():
+151:     user_id = request.args.get('user_id')
+152:     if not user_id and 'user_id' in session:
+153:         user_id = session['user_id']
+154:     if not user_id:
+155:         return "Please login", 401
+156:     # Directly using user_id without checking ownership
+157:     conn = get_db()
+158:     c = conn.cursor()
+159:     c.execute(f"SELECT username, role FROM users WHERE id = {user_id}")
+160:     user = c.fetchone()
+161:     conn.close()
+162:     if user:
+163:         return f"Profile: {user[0]} (Role: {user[1]})<br><a href='/'>Home</a>"
+164:     else:
+165:         return "User not found"
+166: 
+167: # Command injection via eval (dangerous)
+168: @app.route('/calculator')
+169: def calculator():
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]
