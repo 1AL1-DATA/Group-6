@@ -1,5 +1,13 @@
 # RepoGuard - Process Flow
 
+## Setup (Conda)
+
+```bash
+cd /home/a/PycharmProjects/Group-6
+conda env create -f environment.yml
+conda activate group6
+```
+
 ```mermaid
 flowchart TD
     Start([RepoGuard Start]) --> Input{Input Type}
