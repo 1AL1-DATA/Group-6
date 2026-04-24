@@ -1,5 +1,13 @@
 # RepoGuard - Hybrid LLM-based Security Review Tool
 
+## Setup (Conda - Recommended)
+
+```bash
+cd /home/a/PycharmProjects/Group-6
+conda env create -f environment.yml
+conda activate group6
+```
+
 ## System Overview
 
 RepoGuard is a standalone application that automatically analyzes codebases to detect common security issues before they are made public or merged into the main branch. It can be integrated into development workflows through a CLI or CI/CD pipelines.

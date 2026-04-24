@@ -17,7 +17,10 @@
 
 ### Quick Start
 ```bash
+# Create and activate conda environment
 cd /home/a/PycharmProjects/Group-6
+conda env create -f environment.yml
+conda activate group6
 
 # Basic scan
 python3.10 repoguard_cli.py scan /path/to/code.py
