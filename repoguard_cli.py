@@ -2,6 +2,7 @@
 """RepoGuard CLI entry point."""
 import sys
 import os
+import argparse
 import json
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -10,29 +11,16 @@ from repoguard import RepoGuard
 from repoguard.engine.aggregator import Reporter
 
 
-def check_ollama() -> dict:
+def check_ollama(api_base: str = "http://localhost:11434") -> dict:
     """Check if Ollama is available and return model info."""
     try:
         import requests
-        r = requests.get("http://localhost:11434/api/tags", timeout=2)
+        r = requests.get(f"{api_base}/api/tags", timeout=2)
         if r.status_code == 200:
             return r.json()
-        return None
     except:
-        return None
-
-
-def list_models(api_base: str = "http://localhost:11434") -> list:
-    """Get list of available models from Ollama."""
-    try:
-        import requests
-        r = requests.get(f"{api_base}/api/tags", timeout=5)
-        if r.status_code == 200:
-            return r.json().get("models", [])
-        return []
-    except Exception as e:
-        print(f"Error fetching models: {e}")
-        return []
+        pass
+    return None
 
 
 def test_llm(api_base: str, model: str) -> bool:
@@ -43,186 +31,177 @@ def test_llm(api_base: str, model: str) -> bool:
         r = requests.post(f"{api_base}/api/chat", json=payload, timeout=30)
         return r.status_code == 200
     except Exception as e:
-        print(f"Connection error: {e}")
         return False
 
 
-def main():
-    use_llm = False
-    llm_api = "http://localhost:11434"
-    llm_model = None  # Will be selected interactively
-    export_prompts = None
+def interactive_model_select(api_base: str, default_model: str = None) -> str:
+    """Interactive model selection from Ollama."""
+    ollama_info = check_ollama(api_base)
+    if not ollama_info:
+        return None
     
-    # Parse arguments
-    args = sys.argv[1:]
-    if "--llm" in args:
-        use_llm = True
-        args.remove("--llm")
+    models = ollama_info.get("models", [])
+    if not models:
+        return None
     
-    for i, arg in enumerate(args):
-        if arg == "--api" and i + 1 < len(args):
-            llm_api = args[i + 1]
-            args.pop(i)
-        elif arg == "--model" and i + 1 < len(args):
-            llm_model = args[i + 1]
-            args.pop(i)
-        elif arg == "--export-prompts" and i + 1 < len(args):
-            export_prompts = args[i + 1]
-            args.pop(i)
+    print("\n━━━ Available Models ━━━")
+    for i, m in enumerate(models):
+        name = m.get("name", m.get("model", "unknown"))
+        size_gb = m.get("size", 0) / 1e9
+        details = m.get("details", {})
+        params = details.get("parameter_size", "?")
+        marker = " ←default" if name == default_model or (default_model is None and i == 0) else ""
+        print(f"  {i+1}. {name} ({params}, {size_gb:.1f}GB){marker}")
     
-# Check for help/version
-    if len(args) == 0 or args[0] in ["-h", "--help", "help"]:
-        print("""
-╔═══════════════════════════════════════════════════════════╗
-║                   RepoGuard CLI                         ║
-╠═══════════════════════════════════════════════════════════╣
-║ USAGE:                                           ║
-║   repoguard scan <path>        Scan file or directory  ║
-║   repoguard code '<code>'     Scan code string     ║
-║                                                  ║
-║ OPTIONS:                                         ║
-║   --llm                        Enable LLM         ║
-║   --api <url>                  Custom API URL     ║
-║   --model <name>                Model name        ║
-║   --export-prompts <dir>        Export prompts to file   ║
-║                                                  ║
-║ EXAMPLES:                                         ║
-║   repoguard scan .                              ║
-║   repoguard scan ./src --llm                   ║
-║   repoguard scan . --llm --model qwen3.5:9b   ║
-║   repoguard scan . --llm --export-prompts prompts/   ║
-║   repoguard code 'eval(user_input)' --llm      ║
-║                                                  ║
-║ TIP: Use --export-prompts to save LLM prompts for   ║
-║ external processing (e.g., upload to Claude,     ║
-║ GPT-4, Gemini for better analysis).               ║
-║                                                  ║
-╚═══════════════════════════════════════════════════════════╝
-""")
-        sys.exit(0)
+    if default_model:
+        return default_model
     
-    command = args[0] if args else "help"
+    print("  0. Cancel")
+    choice = input("\nSelect model [1]: ").strip()
     
-    if command == "scan":
-        path = args[1] if len(args) > 1 else "."
-        
-        if use_llm:
-            ollama_info = check_ollama()
-            if not ollama_info:
-                print("Warning: Ollama not available on localhost:11434")
-                print("Falling back to non-LLM mode...")
-                use_llm = False
-            else:
-                # Interactive model selection
-                models = ollama_info.get("models", [])
-                if not models:
-                    print("Warning: No models found in Ollama")
-                    use_llm = False
-                else:
-                    print("\n=== Available Models ===")
-                    for i, m in enumerate(models):
-                        name = m.get("name", m.get("model", "unknown"))
-                        size_gb = m.get("size", 0) / 1e9
-                        details = m.get("details", {})
-                        params = details.get("parameter_size", "unknown")
-                        print(f"  {i+1}. {name} ({params}, {size_gb:.1f}GB)")
-                    
-                    if llm_model:
-                        # Validate user-specified model exists
-                        valid = any(m.get("name") == llm_model or m.get("model") == llm_model for m in models)
-                        if valid:
-                            print(f"\n[LLM] Using specified model: {llm_model}")
-                        else:
-                            print(f"\nWarning: Model '{llm_model}' not found. Available:")
-                            for m in models:
-                                print(f"  - {m.get('name')}")
-                            print("Using first available model.")
-                            llm_model = models[0].get("name") or models[0].get("model")
-                    else:
-                        print("\n[LLM] Select model (enter number or press Enter for default):")
-                        for m in models:
-                            print(f"  - {m.get('name')}")
-                        print("  - custom: enter model name manually")
-                        choice = input("Choice [1]: ").strip()
-                        if choice.isdigit() and 1 <= int(choice) <= len(models):
-                            llm_model = models[int(choice)-1].get("name") or models[int(choice)-1].get("model")
-                        elif choice.lower() == "custom":
-                            llm_model = input("Model name: ").strip()
-                        elif not choice:
-                            llm_model = models[0].get("name") or models[0].get("model")
-                        else:
-                            llm_model = choice
-                    
-                    print(f"[LLM] Testing connection to {llm_model}...")
-                    if test_llm(llm_api, llm_model):
-                        print(f"[LLM] Connected to {llm_model}")
-                    else:
-                        print(f"[LLM] Could not connect, falling back...")
-                        use_llm = False
-                    use_llm = False
-        
-        guard = RepoGuard(
-            use_llm=use_llm,
-            llm_model=llm_model,
-            llm_api_base=llm_api,
-            export_prompts=export_prompts
-        )
-        
-        if export_prompts:
-            print(f"[LLM] Prompts will be exported to: {export_prompts}/")
-        
-        reporter = Reporter()
-        
-        if os.path.isfile(path):
-            report = guard.scan_file(path)
-        elif os.path.isdir(path):
-            report = guard.scan_repository(path)
+    if not choice or choice == "1":
+        return models[0].get("name") or models[0].get("model")
+    elif choice.isdigit() and 0 < int(choice) <= len(models):
+        return models[int(choice)-1].get("name") or models[int(choice)-1].get("model")
+    elif choice == "0":
+        return None
+    
+    return choice
+
+
+def run_scan(args: argparse.Namespace) -> int:
+    """Execute scan command."""
+    # Check LLM availability
+    use_llm = args.llm
+    llm_model = args.model
+    
+    if use_llm:
+        ollama_info = check_ollama(args.api)
+        if not ollama_info:
+            print("⚠ Ollama not running. Install from: https://ollama.ai")
+            print("  Falling back to rule-based scan...")
+            use_llm = False
         else:
-            print(f"Error: {path} not found")
-            sys.exit(1)
-        
-        reporter.print_report(report)
-        
-        if use_llm and guard.llm_analyzer:
-            print(f"\n[LLM Analysis Enabled: {llm_model}]")
-        
-        if os.environ.get("REPOGUARD_JSON"):
-            print("\n--- JSON Output ---")
-            print(json.dumps(report, indent=2))
-        
-        summary = report.get("summary", {})
-        if summary.get("critical_count", 0) > 0:
-            sys.exit(2)
-        elif summary.get("high_count", 0) > 0:
-            sys.exit(1)
-        sys.exit(0)
+            models = ollama_info.get("models", [])
+            if not models:
+                print("⚠ No models found. Falling back...")
+                use_llm = False
+            elif not llm_model:
+                llm_model = interactive_model_select(args.api)
+                if llm_model and test_llm(args.api, llm_model):
+                    print(f"✓ Connected to {llm_model}")
+                else:
+                    print("⚠ Could not connect to model. Falling back...")
+                    use_llm = False
     
-    elif command == "code":
-        if len(args) < 2:
-            print("Usage: repoguard code '<code>'")
-            sys.exit(1)
-        
-        code = args[1]
-        
-        guard = RepoGuard(
-            use_llm=use_llm,
-            llm_model=llm_model,
-            llm_api_base=llm_api
-        )
-        
-        report = guard.scan_code(code, "input.py")
-        
-        reporter = Reporter()
-        reporter.print_report(report)
-        
-        if use_llm and guard.llm_analyzer:
-            print(f"\n[LLM Analysis Enabled: {llm_model}]")
-        
-        sys.exit(0)
+    # Initialize scanner
+    guard = RepoGuard(
+        use_llm=use_llm,
+        llm_model=llm_model,
+        llm_api_base=args.api,
+        export_prompts=args.export_prompts
+    )
     
+    if args.export_prompts:
+        print(f"📤 Prompts → {args.export_prompts}/")
+    
+    reporter = Reporter()
+    
+    # Execute scan
+    path = args.path or "."
+    
+    if not os.path.exists(path):
+        print(f"✗ Path not found: {path}")
+        return 1
+    
+    is_file = os.path.isfile(path)
+    print(f"{'📄' if is_file else '📁'} Scanning: {path}")
+    
+    if is_file:
+        report = guard.scan_file(path)
     else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
+        report = guard.scan_repository(path)
+    
+    reporter.print_report(report)
+    
+    if use_llm and llm_model:
+        print(f"\n🔗 LLM: {llm_model}")
+    
+    if args.json:
+        print("\n--- JSON ---")
+        print(json.dumps(report, indent=2))
+    
+    # Exit codes
+    summary = report.get("summary", {})
+    if summary.get("critical_count", 0) > 0:
+        return 2
+    elif summary.get("high_count", 0) > 0:
+        return 1
+    return 0
+
+
+def run_code(args: argparse.Namespace) -> int:
+    """Execute code scan command."""
+    code = args.code
+    
+    guard = RepoGuard(
+        use_llm=args.llm,
+        llm_model=args.model,
+        llm_api_base=args.api
+    )
+    
+    report = guard.scan_code(code, "input.py")
+    reporter = Reporter()
+    reporter.print_report(report)
+    return 0
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="repoguard",
+        description="RepoGuard - AI-powered security scanner",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  repoguard scan .                          Scan current directory
+  repoguard scan ./src --llm                Scan with LLM analysis
+  repoguard scan app.py --json               JSON output
+  repoguard scan . --export-prompts out/    Export LLM prompts
+  repoguard code 'eval(x)'                  Scan code string
+        """
+    )
+    
+    subparsers = parser.add_subparsers(dest="command", help="Commands")
+    
+    # Scan command
+    scan_parser = subparsers.add_parser("scan", help="Scan file or directory")
+    scan_parser.add_argument("path", nargs="?", help="File or directory to scan")
+    scan_parser.add_argument("--llm", "-l", action="store_true", help="Enable LLM analysis")
+    scan_parser.add_argument("--api", "-a", default="http://localhost:11434", help="Ollama API URL")
+    scan_parser.add_argument("--model", "-m", help="Model name")
+    scan_parser.add_argument("--export-prompts", "-e", help="Export prompts to directory")
+    scan_parser.add_argument("--json", "-j", action="store_true", help="JSON output")
+    scan_parser.add_argument("--quiet", "-q", action="store_true", help="Quiet mode")
+    
+    # Code command
+    code_parser = subparsers.add_parser("code", help="Scan code string")
+    code_parser.add_argument("code", help="Code to scan")
+    code_parser.add_argument("--llm", "-l", action="store_true", help="Enable LLM analysis")
+    code_parser.add_argument("--api", "-a", default="http://localhost:11434", help="Ollama API URL")
+    code_parser.add_argument("--model", "-m", help="Model name")
+    
+    # Version
+    parser.add_argument("--version", "-v", action="version", version="%(prog)s 1.0.0")
+    
+    args = parser.parse_args()
+    
+    if args.command == "scan":
+        sys.exit(run_scan(args))
+    elif args.command == "code":
+        sys.exit(run_code(args))
+    else:
+        parser.print_help()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
