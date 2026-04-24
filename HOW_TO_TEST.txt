@@ -1,7 +1,12 @@
-How to test the app: **Ollama serve** {ON}
+How to test the app:
+Setup (Conda - Recommended):
+    cd /home/a/PycharmProjects/Group-6
+    conda env create -f environment.yml
+    conda activate group6
+
 Via CLI (terminal)
     cd /home/a/PycharmProjects/Group-6
-python3.10 repoguard_cli.py scan /home/a/Desktop/vuln_app.py
+    python3.10 repoguard_cli.py scan /home/a/Desktop/vuln_app.py
 Options:
 # Scan current directory
     python3.10 repoguard_cli.py scan .

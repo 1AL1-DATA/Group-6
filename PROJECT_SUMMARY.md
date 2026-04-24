@@ -136,8 +136,12 @@ RepoGuard/
 ## How to Run
 
 ```bash
+# Create and activate conda environment
+cd /home/a/PycharmProjects/Group-6
+conda env create -f environment.yml
+conda activate group6
+
 # Basic scan
-cd /home/a/Desktop/repoguard
 python3.10 repoguard_cli.py scan /path/to/code.py
 
 # With LLM
@@ -145,6 +149,11 @@ python3.10 repoguard_cli.py scan /path/to/code.py --llm
 
 # Jupyter
 # Open test_notebook.ipynb in PyCharm
+```
+
+Alternatively (without conda):
+```bash
+pip install -r requirements.txt
 ```
 
 ---
