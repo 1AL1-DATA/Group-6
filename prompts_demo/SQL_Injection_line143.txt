@@ -1,0 +1,48 @@
+# Finding: SQL Injection at line 143
+# Severity: High
+# Evidence: c.execute(f"UPDATE users SET password = '{hashed}' WHERE id = {session['user_id']}")
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: SQL Injection
+Severity: High
+Evidence: c.execute(f"UPDATE users SET password = '{hashed}' WHERE id = {session['user_id']}")
+Line: 143
+
+Code context:
+```
+134:     if 'user_id' not in session:
+135:         return "Unauthorized", 401
+136:     new_pass = request.form.get('new_password')
+137:     # Using MD5, no salt
+138:     hashed = hashlib.md5(new_pass.encode()).hexdigest()
+139:     conn = get_db()
+140:     c = conn.cursor()
+141:     # Vulnerable to SQL injection if user_id is not checked correctly, but fixed parameter
+142:     # However, still weak crypto
+143:     c.execute(f"UPDATE users SET password = '{hashed}' WHERE id = {session['user_id']}")
+144:     conn.commit()
+145:     conn.close()
+146:     return "Password updated (insecure hash)"
+147: 
+148: # Profile page: shows user info, vulnerable to IDOR (Insecure Direct Object Reference)
+149: @app.route('/profile')
+150: def profile():
+151:     user_id = request.args.get('user_id')
+152:     if not user_id and 'user_id' in session:
+153:         user_id = session['user_id']
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]

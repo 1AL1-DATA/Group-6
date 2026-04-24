@@ -1,0 +1,13 @@
+# RepoGuard Dependencies
+# Core
+torch>=2.0.0
+transformers>=4.30.0
+sentence-transformers>=2.2.0
+
+# Utilities
+requests>=2.28.0
+tqdm>=4.65.0
+
+# Optional (for advanced features)
+# ollama>=0.1.0  # For local LLM
+# pytest>=7.0.0  # For testing

@@ -1,0 +1,26 @@
+How to test the app: **Ollama serve** {ON}
+Via CLI (terminal)
+    cd /home/a/PycharmProjects/Group-6
+python3.10 repoguard_cli.py scan /home/a/Desktop/vuln_app.py
+Options:
+# Scan current directory
+    python3.10 repoguard_cli.py scan .
+# With LLM analysis
+    python3.10 repoguard_cli.py scan /home/a/Desktop/vuln_app.py --llm
+# Scan specific file
+    python3.10 repoguard_cli.py scan vuln_app.py
+# Scan code string directly
+    python3.10 repoguard_cli.py code 'os.system(user_input)'
+Via Jupyter Notebook
+1. Open /home/a/PycharmProjects/Group-6/test_notebook.ipynb in PyCharm
+2. Run cells with Shift+Enter
+Via Python Code
+    import sys
+    sys.path.insert(0, '/home/a/PycharmProjects/Group-6')
+    from repoguard import RepoGuard
+    guard = RepoGuard(use_llm=False)
+    report = guard.scan_file('vuln_app.py')
+    print(f"Found: {report['summary']['total_findings']} vulnerabilities")
+Test Files Included
+- /home/a/Desktop/vuln_app.py - Flask app with 19 vulnerabilities
+- test_notebook.ipynb - Jupyter tests

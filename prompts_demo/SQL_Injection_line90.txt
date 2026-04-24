@@ -1,0 +1,48 @@
+# Finding: SQL Injection at line 90
+# Severity: High
+# Evidence: <h2>Search Results for: """ + q + """</h2>
+# File: unknown
+
+Analyze this security finding:
+
+Finding Type: SQL Injection
+Severity: High
+Evidence: <h2>Search Results for: """ + q + """</h2>
+Line: 90
+
+Code context:
+```
+81:         conn.close()
+82: 
+83: # Reflected XSS in search
+84: @app.route('/search')
+85: def search():
+86:     q = request.args.get('q', '')
+87:     # Directly injecting user input into HTML without escaping
+88:     return render_template_string('''
+89:         <html><body>
+90:         <h2>Search Results for: """ + q + """</h2>
+91:         <p>No results found.</p>
+92:         <a href="/">Back</a>
+93:         </body></html>
+94:     ''')
+95: 
+96: # Command Injection vulnerability
+97: @app.route('/ping')
+98: def ping():
+99:     ip = request.args.get('ip', '')
+100:     # Directly pass user input to shell command
+```
+
+Provide:
+1. Explanation of the vulnerability
+2. How to fix it (show code example)
+
+
+
+# RESPONSE FORMAT:
+# Provide your analysis in the following format:
+# ---EXPLANATION---
+# [Your explanation here]
+# ---FIX_SUGGESTION---
+# [Your fix suggestion with code example here]
