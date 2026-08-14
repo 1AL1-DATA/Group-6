@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONDA_PATH="/home/a/miniconda3"
+CONDA_PATH="$HOME/miniconda3"
 ENV_FILE="$SCRIPT_DIR/environment.yml"
 
 echo "=== Group-6 Conda Setup ==="

@@ -4,7 +4,7 @@
 
 ### Project Location
 ```
-/home/a/PycharmProjects/Group-6/
+Group-6/
 ```
 
 ### What Works
@@ -18,7 +18,7 @@
 ### Quick Start
 ```bash
 # Create and activate conda environment
-cd /home/a/PycharmProjects/Group-6
+cd Group-6
 conda env create -f environment.yml
 conda activate group6
 
@@ -58,7 +58,7 @@ repoguard/
 
 ### To Push to GitHub
 ```bash
-cd /home/a/PycharmProjects/Group-6
+cd Group-6
 git init (if not done)
 git add .
 git commit -m "RepoGuard: LLM security scanner"
@@ -73,7 +73,7 @@ git push -u origin main
 4. [Medium] More training data for RL learner
 
 ### Test Files
-- `/home/a/Desktop/vuln_app.py` - Flask with 19 vulns
+- `vuln_app.py` - Flask with 19 vulns
 - `test_notebook.ipynb` - Jupyter test notebook
 
 ---

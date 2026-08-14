@@ -4,7 +4,7 @@
 
 ```bash
 # Create conda environment
-cd /home/a/PycharmProjects/Group-6
+cd Group-6
 conda env create -f environment.yml
 conda activate group6
 
@@ -70,7 +70,7 @@ python3.10 repoguard_cli.py scan /path/to/code.py --llm --export-prompts /tmp/re
 To use RepoGuard in this project:
 
 1. Activate conda environment: `conda activate group6`
-2. Run: `cd /home/a/PycharmProjects/Group-6 && python3.10 repoguard_cli.py scan <TARGET> --llm`
+2. Run: `cd Group-6 && python3.10 repoguard_cli.py scan <TARGET> --llm`
 2. The tool will list available Ollama models and prompt for selection
 3. Report findings with severity and explanation
 4. For better analysis: use `--export-prompts <DIR>` then process with external LLM

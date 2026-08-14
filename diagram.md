@@ -3,7 +3,7 @@
 ## Setup (Conda)
 
 ```bash
-cd /home/a/PycharmProjects/Group-6
+cd Group-6
 conda env create -f environment.yml
 conda activate group6
 ```

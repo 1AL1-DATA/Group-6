@@ -1,8 +1,8 @@
 #!/bin/bash
 # Activate Group-6 conda environment and switch to project directory
 
-CONDA_PATH="/home/a/miniconda3"
-PROJECT_DIR="/home/a/PycharmProjects/Group-6"
+CONDA_PATH="$HOME/miniconda3"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Check if conda is in PATH
 if ! command -v conda &> /dev/null; then
